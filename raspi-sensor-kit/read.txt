@@ -1,0 +1,46 @@
+Raspberry Pi Sensor Kit (water_lv + mud_lv)
+
+Folder layout
+- app/main.py
+- app/sensors.py
+- app/device_info.py
+- app/api.py
+- deploy/setup_pi.sh
+- deploy/pigpiod.service
+- deploy/zzz-ttyS0-dialout.rules
+
+Quick start on a NEW Raspberry Pi
+1) Copy this whole folder to target Pi (for example to /home/<user>/github/raspi-sensor-kit)
+2) Run setup as root:
+   cd /home/<user>/github/raspi-sensor-kit
+   sudo bash deploy/setup_pi.sh
+3) Reboot once:
+   sudo reboot
+4) Start app:
+   python3 ~/raspi4/main.py
+
+What setup_pi.sh does
+- Installs dependencies: python3, pyserial, httpx, build tools
+- Installs pigpio Python package
+- Installs pigpiod binary (build from source if apt package not available)
+- Copies app files to ~/raspi4
+- Adds user to dialout group
+- Adds udev rule for /dev/ttyS0 group+mode
+- Disables serial console on ttyS0 in /boot/firmware/cmdline.txt
+- Masks serial-getty@ttyS0
+- Installs/enables pigpiod systemd service
+
+Manual commands (if needed)
+- Check pigpiod:
+  systemctl status pigpiod
+  pgrep -ax pigpiod
+- Restart pigpiod:
+  sudo systemctl restart pigpiod
+- Check serial permission:
+  ls -l /dev/serial0 /dev/ttyS0
+  groups
+
+Notes
+- If /dev/serial0 still says Permission denied, verify cmdline has NO console=serial0,115200 then reboot.
+- Environment override examples:
+  SENSOR_INTERVAL_SEC=5 MUD_UART_BAUD=9600 python3 ~/raspi4/main.py
